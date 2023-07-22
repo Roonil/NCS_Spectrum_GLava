@@ -4,7 +4,7 @@ This is an attempt to replicate the well-known NCS Spectrum Audio Reactor, imple
 https://github.com/Roonil/NCS_Spectrum_GLava/assets/15421185/d3ff51b8-1924-4ff9-9b75-60913979138b
 
 # Installation Instructions
-1. Get GLava's source code from ```https://gitlab.com/wild-turtles-publicly-release/glava/glava```
+1. Get GLava's source code from https://gitlab.com/wild-turtles-publicly-release/glava/glava
 2. Compile GLava after doing these changes in the render.c file (located in glava/glava/render.c):
     1. Fix time variable by changing
 ```.src_type = SRC_SCREEN``` to ```.src_type = SRC_TIME``` at line 657 (Located after ```#define SRC_TIME 5```)
