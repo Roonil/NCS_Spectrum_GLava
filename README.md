@@ -35,7 +35,7 @@ imageLocation = glGetUniformLocation(program, "atomicImageTexture");
 glProgramUniform1i(program, imageLocation, imageUnit);
 glBindTextureUnit(0, atomicImageTexture);
 ```
-3. After compilation, in rc.glsl file located at home/.config/glava/, change:<br /> ```#request setversion 3 3``` to ```#request setversion 4 5```, and <br /> ```#request setshaderversion 330``` to ```#request setshaderversion 450``` (alternatively, try 420,430 or 440 for setshaderversion) 
+3. After compilation, in rc.glsl file located at home/.config/glava/, change:<br /> ```#request setversion 3 3``` to ```#request setversion 4 5```, and <br /> ```#request setshaderversion 330``` to ```#request setshaderversion 450``` (alternatively, try 420, 430 or 440 for setshaderversion) 
 4. Clone the repository and copy the 'ncs' folder into home/config/glava directory.
 5. Run the module with ```glava -m ncs``` (Suggested resolution in rc.glsl: 380x380)
 
