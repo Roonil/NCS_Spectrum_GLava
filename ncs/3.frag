@@ -12,37 +12,25 @@ out vec4 fragment;
 #request uniform "prev" prev
 uniform sampler2D prev;
 
-vec4 bloom(vec2 uv) {
+vec4 bloom(vec2 uv, float opacity, vec4 baseColor) {
     
     const float blurSize = 1.0 / 200.0;
-    
-    vec4 col = texture(prev, uv);
-    
     vec4 sum = vec4(0);
-    vec2 texcoord = uv;
+    float consts[] = {0.05, 0.09, 0.12, 0.15, 0.16};
     
-    sum += texture(prev, vec2(texcoord.x - 4.0 * blurSize, texcoord.y)) * 0.05;
-    sum += texture(prev, vec2(texcoord.x - 3.0 * blurSize, texcoord.y)) * 0.09;
-    sum += texture(prev, vec2(texcoord.x - 2.0 * blurSize, texcoord.y)) * 0.12;
-    sum += texture(prev, vec2(texcoord.x - blurSize, texcoord.y)) * 0.15;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y)) * 0.16;
-    sum += texture(prev, vec2(texcoord.x + blurSize, texcoord.y)) * 0.15;
-    sum += texture(prev, vec2(texcoord.x + 2.0 * blurSize, texcoord.y)) * 0.12;
-    sum += texture(prev, vec2(texcoord.x + 3.0 * blurSize, texcoord.y)) * 0.09;
-    sum += texture(prev, vec2(texcoord.x + 4.0 * blurSize, texcoord.y)) * 0.05;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y - 4.0 * blurSize)) * 0.05;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y - 3.0 * blurSize)) * 0.09;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y - 2.0 * blurSize)) * 0.12;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y - blurSize)) * 0.15;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y)) * 0.16;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y + blurSize)) * 0.15;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y + 2.0 * blurSize)) * 0.12;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y + 3.0 * blurSize)) * 0.09;
-    sum += texture(prev, vec2(texcoord.x, texcoord.y + 4.0 * blurSize)) * 0.05;
+    for(int i =- 4; i <= 4; i ++ ) {
+        vec4 temp = texture(prev, vec2(uv.x + i * blurSize, uv.y)) * consts[abs(abs(i) - 4)];
+        sum += sign(temp.w) * temp;
+        temp = texture(prev, vec2(uv.x, uv.y + i * blurSize)) * consts[abs(abs(i) - 4)];
+        sum += sign(temp.w) * temp;
+    }
     
     const float intensity = 0.4;
-    col = sum * intensity + texture(prev, texcoord);
-    return col;
+    
+    if ((sum.w) <= opacity / 9)return vec4(0);
+    
+    else return baseColor * sign(baseColor.w) + sum * intensity;
+    
 }
 
 float glow(float value, float strength, float dist) {
@@ -52,8 +40,10 @@ float glow(float value, float strength, float dist) {
 void main()
 {
     vec2 uv = gl_FragCoord.xy / screen.xy;
+    vec4 prevColor = texture(prev, uv);
     
-    fragment.xyz = bloom(uv).xyz;
+    fragment = bloom(uv, (1 - sign(prevColor.w)) * prevColor.r, prevColor);
+    
     fragment.xyz *= ((glow(length(fragment.xyz), 0.5, 0.92)));
 }
 
