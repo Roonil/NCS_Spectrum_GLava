@@ -32,12 +32,6 @@ out vec4 fragment;
 layout(binding = 4, rgba32f)uniform coherent image2D image;
 layout(binding = 5, r32ui)uniform uimage2D depthImage;
 
-float v = 2.5;
-
-#define PI_TWO 1.570796326794897
-#define PI 3.141592653589793
-#define TWO_PI 6.283185307179586
-
 #define permute(x)mod(((x * 34.0) + 1.0) * x, 289.0)
 #define taylorInvSqrt(r)1.79284291400159 - 0.85373472095314 * r
 #define fade(t)t * t*t * (t * (t * 6.0 - 15.0) + 10.0)
@@ -205,13 +199,8 @@ float octaveNoise(vec4 p, vec4 flow) {
     const float finalAudio = 1*max(0.0, 1.50802 * (audios[0] - 0.04)) * (max(1.0, 2.0802 * (audios[1]))) * (max(1.0, 3.4802 * (audios[2]))); //2.0802, 2.4802
     
     for(int i = 0; i < octaves; i += 1) {
-        
         value += 1*finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
-        
-        //flowY=.015
-        // value+=.4*min((audios[0]+.8802*audios[1]+.8802*audios[2]),4.8)*cnoise(vec4((p+flow*time)*frequency),vec4(0))*amplitude;
         total += amplitude;
-        
         amplitude *= persistence;
         frequency *= lacunarity;
     }
@@ -269,4 +258,3 @@ void main()
     }
     
 }
-
