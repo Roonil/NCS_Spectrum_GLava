@@ -10,30 +10,30 @@ https://github.com/Roonil/NCS_Spectrum_GLava/assets/15421185/d3ff51b8-1924-4ff9-
 ```.src_type = SRC_SCREEN``` to ```.src_type = SRC_TIME``` at line 657 (Located after ```#define SRC_TIME 5```)
     2. Add the following code after line 1586 and before line 1587 (between ```glBindFragDataLocation(id, 1, "fragment");``` and ```glUseProgram(0);```:
  ```
-                                GLuint imageTexture;
-                                int w, h;
-                                gl->wcb->get_fbsize(gl->w, &w, &h);
-                                glGenTextures(1, &imageTexture);
-                                glBindTexture(GL_TEXTURE_2D, imageTexture);
-                                glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, w, h);
-                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                                GLuint imageUnit = 4;
-                                glBindImageTexture(imageUnit, imageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-                                GLuint program = id;
-                                GLint imageLocation = glGetUniformLocation(program, "imageTexture");
-                                glProgramUniform1i(program, imageLocation, imageUnit);
-                                glBindTextureUnit(0, imageTexture);
+GLuint imageTexture;
+int w, h;
+gl->wcb->get_fbsize(gl->w, &w, &h);
+glGenTextures(1, &imageTexture);
+glBindTexture(GL_TEXTURE_2D, imageTexture);
+glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, w, h);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+GLuint imageUnit = 4;
+glBindImageTexture(imageUnit, imageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+GLuint program = id;
+GLint imageLocation = glGetUniformLocation(program, "imageTexture");
+glProgramUniform1i(program, imageLocation, imageUnit);
+glBindTextureUnit(0, imageTexture);
 
-                                GLuint atomicImageTexture;
-                                glGenTextures(1, &atomicImageTexture);
-                                glBindTexture(GL_TEXTURE_2D, atomicImageTexture);
-                                glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, w, h);
-                                imageUnit = 5;
-                                glBindImageTexture(imageUnit, atomicImageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-                                imageLocation = glGetUniformLocation(program, "atomicImageTexture");
-                                glProgramUniform1i(program, imageLocation, imageUnit);
-                                glBindTextureUnit(0, atomicImageTexture);
+GLuint atomicImageTexture;
+glGenTextures(1, &atomicImageTexture);
+glBindTexture(GL_TEXTURE_2D, atomicImageTexture);
+glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, w, h);
+imageUnit = 5;
+glBindImageTexture(imageUnit, atomicImageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+imageLocation = glGetUniformLocation(program, "atomicImageTexture");
+glProgramUniform1i(program, imageLocation, imageUnit);
+glBindTextureUnit(0, atomicImageTexture);
 ```
 3. After compilation, in rc.glsl file located at home/.config/glava/, change:<br /> ```#request setversion 3 3``` to ```#request setversion 4 5```, and <br /> ```#request setshaderversion 330``` to ```#request setshaderversion 450``` (alternatively, try 420,430 or 440 for setshaderversion) 
 4. Clone the repository and copy the 'ncs' folder into home/config/glava directory.
