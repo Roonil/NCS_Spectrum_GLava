@@ -36,7 +36,7 @@ void main()
         depth = imageAtomicExchange(depthImage, ivec2(gl_FragCoord.xy), depth);
         
         fragment.xyz = color.xyz;
-        fragment *= (pow(depth / particleSize , colorIntensityAddStrength) - (colorIntensityAddStrength)) * (1 - pow(1 - opacity, float(depth) / particleSize));
+        fragment *= (pow(float(depth) / particleSize , colorIntensityAddStrength) - (colorIntensityAddStrength)) * (1 - pow(1 - opacity, float(depth) / particleSize));
         
         imageStore(image, ivec2(gl_FragCoord.xy), vec4(0));
     }
