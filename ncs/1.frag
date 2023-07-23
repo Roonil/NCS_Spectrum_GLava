@@ -186,24 +186,45 @@ float octaveNoise(vec4 p, vec4 flow) {
     float value = 0.0;
     const int octaves = 3;
     float audios[7] = {audioFractal4, audioFractal5, 1.3 * audioFractal6, 1.3 * audioFractal7, 1.3 * audioFractal8, 1.3 * audioFractal1, 1.3 * audioFractal2};
+    float temp;
     
-    for(int i = 0; i < 3; i ++ )
-    for(int j = i; j < 7; j ++ )
-    if (audios[i] < audios[j])
-    {
-        float temp = audios[i];
-        audios[i] = audios[j];
-        audios[j] = temp;
-    }
+    temp = max(audios[0], audios[1]);
+    audios[1] = min(audios[0], audios[1]);
+    audios[0] = temp;
     
-    const float finalAudio = 1*max(0.0, 1.50802 * (audios[0] - 0.04)) * (max(1.0, 2.0802 * (audios[1]))) * (max(1.0, 3.4802 * (audios[2]))); //2.0802, 2.4802
+    temp = max(audios[2], audios[3]);
+    audios[3] = min(audios[2], audios[3]);
+    audios[2] = temp;
+    
+    temp = max(audios[4], audios[5]);
+    audios[5] = min(audios[4], audios[5]);
+    audios[4] = temp;
+    
+    temp = max(audios[0], audios[2]);
+    audios[2] = min(audios[0], audios[2]);
+    audios[0] = temp;
+    
+    temp = max(audios[1], audios[3]);
+    audios[3] = min(audios[1], audios[3]);
+    audios[1] = temp;
+    
+    temp = max(audios[2], audios[4]);
+    audios[4] = min(audios[2], audios[4]);
+    audios[2] = temp;
+    
+    temp = max(audios[0], audios[4]);
+    audios[4] = min(audios[0], audios[4]);
+    audios[0] = temp;
+    
+    temp = max(audios[1], audios[5]);
+    audios[5] = min(audios[1], audios[5]);
+    audios[1] = temp;
+    
+    const float finalAudio = 1.3 * max(0.0, 1.50802 * (audios[0] - 0.04)) * (max(1.0, 2.0802 * (audios[1]))) * (max(1.0, 3.4802 * (audios[2])));
     
     for(int i = 0; i < octaves; i += 1) {
         
         value += 1*finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
-        
-        //flowY=.015
-        // value+=.4*min((audios[0]+.8802*audios[1]+.8802*audios[2]),4.8)*cnoise(vec4((p+flow*time)*frequency),vec4(0))*amplitude;
         total += amplitude;
         
         amplitude *= persistence;
@@ -226,7 +247,7 @@ uniform float displaceX = 180, displaceY = 120, displaceZ = 130, flowX = 0.0, fl
 void main()
 {
     vec2 uv = gl_FragCoord.xy / screen.xy;
-    const ivec2 numParticles = ivec2(380, 380);
+    const ivec2 numParticles = ivec2(screen.x, screen.y);
     const int particleSize = 3;
     
     if (mod(floor(gl_FragCoord.xy), floor((screen.xy) / numParticles.xy)) == vec2(0))

@@ -20,10 +20,12 @@ uniform sampler2D prev;
 void main()
 {
     vec4 img = imageLoad(image, ivec2(gl_FragCoord.xy));
-    vec3 color = vec3(0.0, 0.3176, 1.0); //vec3(.0431,.1882,.8314); vec3(.2039,.051,.4941) vec3(.349,0.,1.) vec3(0.0, 0.3176, 1.0)
+    vec3 color = vec3(0.0, 0.3176, 1.0); //vec3(.0431,.1882,.8314); vec3(.2039,.051,.4941) vec3(.349,0.,1.) vec3(0.0, 0.3176, 1.0) vec3(1.0, 0.0, 0.298) (opacity=.2)
     
     float opacity = 0.15;
     opacity /= 5;
+    
+    const float colorIntensityAddStrength = 0.0;
     
     if ((img.r) != 0)
     {
@@ -34,7 +36,7 @@ void main()
         depth = imageAtomicExchange(depthImage, ivec2(gl_FragCoord.xy), depth);
         
         fragment.xyz = color.xyz;
-        fragment *= (1 - pow(1 - opacity, float(depth) / particleSize));
+        fragment *= (pow(depth / particleSize , colorIntensityAddStrength) - (colorIntensityAddStrength)) * (1 - pow(1 - opacity, float(depth) / particleSize));
         
         imageStore(image, ivec2(gl_FragCoord.xy), vec4(0));
     }
