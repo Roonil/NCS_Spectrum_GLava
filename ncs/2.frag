@@ -20,7 +20,7 @@ uniform sampler2D prev;
 void main()
 {
     vec4 img = imageLoad(image, ivec2(gl_FragCoord.xy));
-    vec3 color = vec3(0.0, 0.3176, 1.0); //vec3(.0431,.1882,.8314); vec3(.2039,.051,.4941) vec3(.349,0.,1.) vec3(0.0, 0.3176, 1.0) vec3(1.0, 0.0, 0.298) (opacity=.2)
+    vec3 color = vec3(0.0, 0.3176, 1.0); //vec3(.0431,.1882,.8314); vec3(.2039,.051,.4941) vec3(.349,0.,1.) vec3(0.0, 0.3176, 1.0) vec3(1.0, 0.0, 0.298) (opacity=.2) vec3(0.1059, 0.0118, 0.2275)(opacity=.5,cAS=.2) vec3(0.4196, 0.0314, 0.149)(op=.53,cAS=.13)
     
     float opacity = 0.15;
     opacity /= 5;

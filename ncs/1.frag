@@ -36,15 +36,15 @@ layout(binding = 5, r32ui)uniform uimage2D depthImage;
 #define taylorInvSqrt(r)1.79284291400159 - 0.85373472095314 * r
 #define fade(t)t * t*t * (t * (t * 6.0 - 15.0) + 10.0)
 
-float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
-float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
-float audioFractal2 = max(smooth_audio(audio_r, audio_sz, 0.3), smooth_audio(audio_r, audio_sz, 0.35));
-float audioFractal3 = max(smooth_audio(audio_r, audio_sz, 0.4), smooth_audio(audio_r, audio_sz, 0.45));
-float audioFractal4 = max(smooth_audio(audio_r, audio_sz, 0.5), smooth_audio(audio_r, audio_sz, 0.55));
-float audioFractal5 = max(smooth_audio(audio_r, audio_sz, 0.6), smooth_audio(audio_r, audio_sz, 0.65));
-float audioFractal6 = max(smooth_audio(audio_r, audio_sz, 0.7), smooth_audio(audio_r, audio_sz, 0.75));
-float audioFractal7 = max(smooth_audio(audio_r, audio_sz, 0.8), smooth_audio(audio_r, audio_sz, 0.85));
-float audioFractal8 = max(smooth_audio(audio_r, audio_sz, 0.9), smooth_audio(audio_r, audio_sz, 0.95));
+const float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
+const float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
+const float audioFractal2 = max(smooth_audio(audio_r, audio_sz, 0.3), smooth_audio(audio_r, audio_sz, 0.35));
+const float audioFractal3 = max(smooth_audio(audio_r, audio_sz, 0.4), smooth_audio(audio_r, audio_sz, 0.45));
+const float audioFractal4 = max(smooth_audio(audio_r, audio_sz, 0.5), smooth_audio(audio_r, audio_sz, 0.55));
+const float audioFractal5 = max(smooth_audio(audio_r, audio_sz, 0.6), smooth_audio(audio_r, audio_sz, 0.65));
+const float audioFractal6 = max(smooth_audio(audio_r, audio_sz, 0.7), smooth_audio(audio_r, audio_sz, 0.75));
+const float audioFractal7 = max(smooth_audio(audio_r, audio_sz, 0.8), smooth_audio(audio_r, audio_sz, 0.85));
+const float audioFractal8 = max(smooth_audio(audio_r, audio_sz, 0.9), smooth_audio(audio_r, audio_sz, 0.95));
 
 float cnoise(vec4 P, vec4 rep) {
     vec4 Pi0 = mod(floor(P), rep);
@@ -178,6 +178,7 @@ float cnoise(vec4 P, vec4 rep) {
 }
 
 float octaveNoise(vec4 p, vec4 flow) {
+    
     float total = 0.0;
     const float persistence = 0.5;
     const float lacunarity = 2.0;
@@ -185,42 +186,46 @@ float octaveNoise(vec4 p, vec4 flow) {
     float amplitude = 1.0;
     float value = 0.0;
     const int octaves = 3;
-    float audios[7] = {audioFractal4, audioFractal5, 1.3 * audioFractal6, 1.3 * audioFractal7, 1.3 * audioFractal8, 1.3 * audioFractal1, 1.3 * audioFractal2};
-    float temp;
+    float audios[7] = {audioFractal2, audioFractal3, 1.3 * audioFractal4, 1.3 * audioFractal5, 1.3 * audioFractal6, 1.3 * audioFractal7, 1.3 * audioFractal8};
     
-    temp = max(audios[0], audios[1]);
-    audios[1] = min(audios[0], audios[1]);
-    audios[0] = temp;
+    float temp;
+    temp = max(audios[0], audios[6]);
+    audios[0] = min(audios[0], audios[6]);
+    audios[6] = temp;
     
     temp = max(audios[2], audios[3]);
-    audios[3] = min(audios[2], audios[3]);
-    audios[2] = temp;
+    audios[2] = min(audios[2], audios[3]);
+    audios[3] = temp;
     
     temp = max(audios[4], audios[5]);
-    audios[5] = min(audios[4], audios[5]);
-    audios[4] = temp;
+    audios[4] = min(audios[4], audios[5]);
+    audios[5] = temp;
     
     temp = max(audios[0], audios[2]);
-    audios[2] = min(audios[0], audios[2]);
-    audios[0] = temp;
-    
-    temp = max(audios[1], audios[3]);
-    audios[3] = min(audios[1], audios[3]);
-    audios[1] = temp;
-    
-    temp = max(audios[2], audios[4]);
-    audios[4] = min(audios[2], audios[4]);
+    audios[0] = min(audios[0], audios[2]);
     audios[2] = temp;
     
-    temp = max(audios[0], audios[4]);
-    audios[4] = min(audios[0], audios[4]);
-    audios[0] = temp;
+    temp = max(audios[1], audios[4]);
+    audios[1] = min(audios[1], audios[4]);
+    audios[4] = temp;
     
-    temp = max(audios[1], audios[5]);
-    audios[5] = min(audios[1], audios[5]);
+    temp = max(audios[3], audios[6]);
+    audios[3] = min(audios[3], audios[6]);
+    audios[6] = temp;
+    
+    temp = max(audios[0], audios[1]);
+    audios[0] = min(audios[0], audios[1]);
     audios[1] = temp;
     
-    const float finalAudio = 1.3 * max(0.0, 1.50802 * (audios[0] - 0.04)) * (max(1.0, 2.0802 * (audios[1]))) * (max(1.0, 3.4802 * (audios[2])));
+    temp = max(audios[2], audios[5]);
+    audios[2] = min(audios[2], audios[5]);
+    audios[5] = temp;
+    
+    temp = max(audios[3], audios[4]);
+    audios[3] = min(audios[3], audios[4]);
+    audios[4] = temp;
+    
+    const float finalAudio = 1.3 * max(0.0, 1.50802 * (audios[6] - 0.04)) * (max(1.0, 2.0802 * (audios[5]))) * (max(1.0, 3.4802 * (audios[4])));
     
     for(int i = 0; i < octaves; i += 1) {
         
@@ -257,16 +262,23 @@ void main()
         
         particleCoords.xyz += vec3(fbm3(old.xyzw, displaceX, vec4(flowX, flowY, flowZ, flowEvolution)), fbm3(old.yzxw, displaceY, vec4(flowY, flowZ, flowX, flowEvolution)), fbm3(old.zxyw, displaceZ, vec4(flowZ, flowX, flowY, flowEvolution)));
         
-        float radius = 280, feather = 0.55;
-        radius += 200 * abs((audioRadius));
-        radius = min(radius, screen.x);
+        const float blurSize = 10.0 / screen.y, feather = 0.45;
         
-        if (length(particleCoords.xyz - vec3(screen.xy / 2, 0)) <= radius)
+        float radius = 270;
+        radius += 200 * abs((audioRadius));
+        radius = min(radius, screen.x + blurSize);
+        
+        vec3 centerCoords = vec3(screen.xy / 2, 0);
+        vec3 distanceVectorFromCenter = (particleCoords - centerCoords);
+        
+        if (length(distanceVectorFromCenter) <= radius)
         {
-            vec3 newPos = vec3(screen.xy / 2, 0) + radius * normalize(particleCoords.xyz - vec3(screen.xy / 2, 0));
-            float diff = length(newPos - particleCoords.xyz);
-            diff *= smoothstep(0, feather * radius, diff);
-            particleCoords.xyz += diff * normalize(particleCoords.xyz - vec3(screen.xy / 2, 0));
+            vec3 newPos = centerCoords + radius * normalize(distanceVectorFromCenter);
+            
+            float diff = length(newPos - particleCoords);
+            diff *= (clamp((smoothstep(0.0, feather * (radius), diff)) + blurSize, blurSize, 1.0 + blurSize));
+            
+            particleCoords += diff * normalize(distanceVectorFromCenter);
         }
         
         for(int i =- particleSize; i <= particleSize; i ++ )for(int j =- particleSize; j <= particleSize; j ++ )
@@ -275,10 +287,10 @@ void main()
             distance = 1-smoothstep(0, particleSize, distance);
             distance *= particleSize;
             
-            ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + vec2(screen.xy / 2)) / 2;
+            ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + centerCoords.xy) / 2;
             finalCoords += ivec2(screen.xy) / ivec2(screen.xy) / 4;
             
-            imageStore(image, finalCoords, vec4(1, 1, particleSize, 1));
+            imageStore(image, finalCoords, vec4(1, 1, particleSize , 1));
             uint depth = imageAtomicAdd(depthImage, finalCoords, uint(distance));
         }
     }
