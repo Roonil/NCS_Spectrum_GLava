@@ -36,15 +36,15 @@ layout(binding = 5, r32ui)uniform uimage2D depthImage;
 #define taylorInvSqrt(r)1.79284291400159 - 0.85373472095314 * r
 #define fade(t)t * t*t * (t * (t * 6.0 - 15.0) + 10.0)
 
-const float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
-const float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
-const float audioFractal2 = max(smooth_audio(audio_r, audio_sz, 0.3), smooth_audio(audio_r, audio_sz, 0.35));
-const float audioFractal3 = max(smooth_audio(audio_r, audio_sz, 0.4), smooth_audio(audio_r, audio_sz, 0.45));
-const float audioFractal4 = max(smooth_audio(audio_r, audio_sz, 0.5), smooth_audio(audio_r, audio_sz, 0.55));
-const float audioFractal5 = max(smooth_audio(audio_r, audio_sz, 0.6), smooth_audio(audio_r, audio_sz, 0.65));
-const float audioFractal6 = max(smooth_audio(audio_r, audio_sz, 0.7), smooth_audio(audio_r, audio_sz, 0.75));
-const float audioFractal7 = max(smooth_audio(audio_r, audio_sz, 0.8), smooth_audio(audio_r, audio_sz, 0.85));
-const float audioFractal8 = max(smooth_audio(audio_r, audio_sz, 0.9), smooth_audio(audio_r, audio_sz, 0.95));
+float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
+float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
+float audioFractal2 = max(smooth_audio(audio_r, audio_sz, 0.3), smooth_audio(audio_r, audio_sz, 0.35));
+float audioFractal3 = max(smooth_audio(audio_r, audio_sz, 0.4), smooth_audio(audio_r, audio_sz, 0.45));
+float audioFractal4 = max(smooth_audio(audio_r, audio_sz, 0.5), smooth_audio(audio_r, audio_sz, 0.55));
+float audioFractal5 = max(smooth_audio(audio_r, audio_sz, 0.6), smooth_audio(audio_r, audio_sz, 0.65));
+float audioFractal6 = max(smooth_audio(audio_r, audio_sz, 0.7), smooth_audio(audio_r, audio_sz, 0.75));
+float audioFractal7 = max(smooth_audio(audio_r, audio_sz, 0.8), smooth_audio(audio_r, audio_sz, 0.85));
+float audioFractal8 = max(smooth_audio(audio_r, audio_sz, 0.9), smooth_audio(audio_r, audio_sz, 0.95));
 
 float cnoise(vec4 P, vec4 rep) {
     vec4 Pi0 = mod(floor(P), rep);
