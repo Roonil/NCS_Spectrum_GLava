@@ -186,7 +186,8 @@ float octaveNoise(vec4 p, vec4 flow) {
     float amplitude = 1.0;
     float value = 0.0;
     const int octaves = 3;
-    float audios[7] = {audioFractal2, audioFractal3, 1.3 * audioFractal4, 1.3 * audioFractal5, 1.3 * audioFractal6, 1.3 * audioFractal7, 1.3 * audioFractal8};
+    
+    float audios[7] = {audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8};
     
     float temp;
     temp = max(audios[0], audios[6]);
@@ -225,11 +226,39 @@ float octaveNoise(vec4 p, vec4 flow) {
     audios[3] = min(audios[3], audios[4]);
     audios[4] = temp;
     
-    const float finalAudio = 1.3 * max(0.0, 1.50802 * (audios[6] - 0.04)) * (max(1.0, 2.0802 * (audios[5]))) * (max(1.0, 3.4802 * (audios[4])));
+    temp = max(audios[1], audios[2]);
+    audios[1] = min(audios[1], audios[2]);
+    audios[2] = temp;
+    
+    temp = max(audios[4], audios[6]);
+    audios[4] = min(audios[4], audios[6]);
+    audios[6] = temp;
+    
+    temp = max(audios[2], audios[3]);
+    audios[2] = min(audios[2], audios[3]);
+    audios[3] = temp;
+    
+    temp = max(audios[4], audios[5]);
+    audios[4] = min(audios[4], audios[5]);
+    audios[5] = temp;
+    
+    temp = max(audios[1], audios[2]);
+    audios[1] = min(audios[1], audios[2]);
+    audios[2] = temp;
+    
+    temp = max(audios[3], audios[4]);
+    audios[3] = min(audios[3], audios[4]);
+    audios[4] = temp;
+    
+    temp = max(audios[5], audios[6]);
+    audios[5] = min(audios[5], audios[6]);
+    audios[6] = temp;
+    
+    const float finalAudio = 0.4 * max((2.42 * (audios[6])) * max(1.0, (4.0 * audios[5]) * (4.0 * audios[4])), (max(2.42 * audios[6], 1.0) * (4.0 * audios[5]) * (4.0 * audios[4])));
     
     for(int i = 0; i < octaves; i += 1) {
         
-        value += 1*finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
+        value += 1.4 * finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
         total += amplitude;
         
         amplitude *= persistence;
@@ -247,7 +276,7 @@ float fbm3(vec4 p, float disp, vec4 flow) {
     
 }
 
-uniform float displaceX = 180, displaceY = 120, displaceZ = 130, flowX = 0.0, flowY = 0.025, flowZ = 0.0, flowEvolution = 0.002;
+uniform float displaceX = 160, displaceY = 130, displaceZ = 135, flowX = 0.0, flowY = 0.027, flowZ = 0.0, flowEvolution = 0.002;
 
 void main()
 {
@@ -264,7 +293,7 @@ void main()
         
         const float blurSize = 10.0 / screen.y, feather = 0.45;
         
-        float radius = 270;
+        float radius = 275;
         radius += 200 * abs((audioRadius));
         radius = min(radius, screen.x + blurSize);
         
