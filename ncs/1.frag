@@ -185,14 +185,46 @@ float octaveNoise(vec4 p, vec4 flow) {
     float frequency = 1.0;
     float amplitude = 1.0;
     float value = 0.0;
-    const int octaves = 3;
+    const int octaves = 2;
     
-    float audios[7] = {audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8};
+    float audios[8] = {audioFractal1, audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8};
     
     float temp;
-    temp = max(audios[0], audios[6]);
-    audios[0] = min(audios[0], audios[6]);
+    temp = max(audios[0], audios[2]);
+    audios[0] = min(audios[0], audios[2]);
+    audios[2] = temp;
+    
+    temp = max(audios[1], audios[3]);
+    audios[1] = min(audios[1], audios[3]);
+    audios[3] = temp;
+    
+    temp = max(audios[4], audios[6]);
+    audios[4] = min(audios[4], audios[6]);
     audios[6] = temp;
+    
+    temp = max(audios[5], audios[7]);
+    audios[5] = min(audios[5], audios[7]);
+    audios[7] = temp;
+    
+    temp = max(audios[0], audios[4]);
+    audios[0] = min(audios[0], audios[4]);
+    audios[4] = temp;
+    
+    temp = max(audios[1], audios[5]);
+    audios[1] = min(audios[1], audios[5]);
+    audios[5] = temp;
+    
+    temp = max(audios[2], audios[6]);
+    audios[2] = min(audios[2], audios[6]);
+    audios[6] = temp;
+    
+    temp = max(audios[3], audios[7]);
+    audios[3] = min(audios[3], audios[7]);
+    audios[7] = temp;
+    
+    temp = max(audios[0], audios[1]);
+    audios[0] = min(audios[0], audios[1]);
+    audios[1] = temp;
     
     temp = max(audios[2], audios[3]);
     audios[2] = min(audios[2], audios[3]);
@@ -202,9 +234,17 @@ float octaveNoise(vec4 p, vec4 flow) {
     audios[4] = min(audios[4], audios[5]);
     audios[5] = temp;
     
-    temp = max(audios[0], audios[2]);
-    audios[0] = min(audios[0], audios[2]);
-    audios[2] = temp;
+    temp = max(audios[6], audios[7]);
+    audios[6] = min(audios[6], audios[7]);
+    audios[7] = temp;
+    
+    temp = max(audios[2], audios[4]);
+    audios[2] = min(audios[2], audios[4]);
+    audios[4] = temp;
+    
+    temp = max(audios[3], audios[5]);
+    audios[3] = min(audios[3], audios[5]);
+    audios[5] = temp;
     
     temp = max(audios[1], audios[4]);
     audios[1] = min(audios[1], audios[4]);
@@ -213,34 +253,6 @@ float octaveNoise(vec4 p, vec4 flow) {
     temp = max(audios[3], audios[6]);
     audios[3] = min(audios[3], audios[6]);
     audios[6] = temp;
-    
-    temp = max(audios[0], audios[1]);
-    audios[0] = min(audios[0], audios[1]);
-    audios[1] = temp;
-    
-    temp = max(audios[2], audios[5]);
-    audios[2] = min(audios[2], audios[5]);
-    audios[5] = temp;
-    
-    temp = max(audios[3], audios[4]);
-    audios[3] = min(audios[3], audios[4]);
-    audios[4] = temp;
-    
-    temp = max(audios[1], audios[2]);
-    audios[1] = min(audios[1], audios[2]);
-    audios[2] = temp;
-    
-    temp = max(audios[4], audios[6]);
-    audios[4] = min(audios[4], audios[6]);
-    audios[6] = temp;
-    
-    temp = max(audios[2], audios[3]);
-    audios[2] = min(audios[2], audios[3]);
-    audios[3] = temp;
-    
-    temp = max(audios[4], audios[5]);
-    audios[4] = min(audios[4], audios[5]);
-    audios[5] = temp;
     
     temp = max(audios[1], audios[2]);
     audios[1] = min(audios[1], audios[2]);
@@ -254,11 +266,12 @@ float octaveNoise(vec4 p, vec4 flow) {
     audios[5] = min(audios[5], audios[6]);
     audios[6] = temp;
     
-    const float finalAudio = 0.4 * max((2.42 * (audios[6])) * max(1.0, (4.0 * audios[5]) * (4.0 * audios[4])), (max(2.42 * audios[6], 1.0) * (4.0 * audios[5]) * (4.0 * audios[4])));
+    //const float finalAudio = 0.4 * max((2.42 * (audios[6])) * max(1.0, (4.0 * audios[5]) * (4.0 * audios[4])), max(2.42 * audios[6], (4.0 * audios[5]) * (4.0 * audios[4])));
+    const float finalAudio = 12 * mix(audios[7] * audios[6], audios[3] * audios[2], audios[5] * audios[4]);
     
     for(int i = 0; i < octaves; i += 1) {
         
-        value += 1.4 * finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
+        value += 1.0 * finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
         total += amplitude;
         
         amplitude *= persistence;
@@ -270,21 +283,24 @@ float octaveNoise(vec4 p, vec4 flow) {
 float fbm3(vec4 p, float disp, vec4 flow) {
     
     float perlinVal = 0;
-    float scale = 2.0 / screen.x, offset = 0.0, multiplier = 1.0;
+    float scale = 2.5 / screen.x, offset = 0.0, multiplier = 1.0;
     perlinVal = offset + multiplier * octaveNoise(scale * p, flow);
     return disp * perlinVal;
     
 }
 
-uniform float displaceX = 160, displaceY = 130, displaceZ = 135, flowX = 0.0, flowY = 0.027, flowZ = 0.0, flowEvolution = 0.002;
+uniform float displaceX = 90, displaceY = 70, displaceZ = -110, flowX = 0.0, flowY = 0.03, flowZ = 0.0, flowEvolution = 0.005;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / screen.xy;
-    const ivec2 numParticles = ivec2(screen.x, screen.y);
+    const ivec2 numParticles = ivec2(screen.xy);
     const int particleSize = 3;
     
-    if (mod(floor(gl_FragCoord.xy), floor((screen.xy) / numParticles.xy)) == vec2(0))
+    const ivec2 spaces = ivec2(abs(screen.xy - 1) / (numParticles - 1));
+    
+    //if (ivec2(mod(gl_FragCoord.xy, spaces)) == ivec2(0)||gl_FragCoord.xy - (mod(gl_FragCoord.xy, spaces))  == ivec2(particleSize))
+    
+    if (ivec2(mod(gl_FragCoord.xy, spaces)) == ivec2(0))
     {
         vec3 particleCoords = vec3(gl_FragCoord.xy, 0);
         vec4 old = vec4(particleCoords, 0);
@@ -316,7 +332,7 @@ void main()
             distance = 1-smoothstep(0, particleSize, distance);
             distance *= particleSize;
             
-            ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + centerCoords.xy) / 2;
+            ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + ivec2(centerCoords.xy)) / 2;
             finalCoords += ivec2(screen.xy) / ivec2(screen.xy) / 4;
             
             imageStore(image, finalCoords, vec4(1, 1, particleSize , 1));
