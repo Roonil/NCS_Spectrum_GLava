@@ -266,8 +266,8 @@ float octaveNoise(vec4 p, vec4 flow) {
     audios[5] = min(audios[5], audios[6]);
     audios[6] = temp;
     
-    //const float finalAudio = 0.4 * max((2.42 * (audios[6])) * max(1.0, (4.0 * audios[5]) * (4.0 * audios[4])), max(2.42 * audios[6], (4.0 * audios[5]) * (4.0 * audios[4])));
-    const float finalAudio = 12 * mix(audios[7] * audios[6], audios[3] * audios[2], audios[5] * audios[4]);
+    //const float finalAudio = 13 * mix((audios[7] * audios[6] - audios[1] * audios[0]), audios[7] * audios[6], audios[5] * audios[4]);
+    const float finalAudio = 13 * mix(mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5]), mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5] * audios[4]), 0.5);
     
     for(int i = 0; i < octaves; i += 1) {
         
@@ -289,7 +289,7 @@ float fbm3(vec4 p, float disp, vec4 flow) {
     
 }
 
-uniform float displaceX = 90, displaceY = 70, displaceZ = -110, flowX = 0.0, flowY = 0.03, flowZ = 0.0, flowEvolution = 0.005;
+uniform float displaceX = 90, displaceY = 100, displaceZ = 110, flowX = 0.0, flowY = 0.0327, flowZ = 0.0, flowEvolution = 0.005;
 
 void main()
 {
