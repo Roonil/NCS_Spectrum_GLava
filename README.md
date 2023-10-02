@@ -1,7 +1,7 @@
 # NCS_Spectrum_GLava
 This is an attempt to replicate the well-known NCS Spectrum Audio Reactor, implemented for GLava. This builds upon the previous work I did (located at https://github.com/Roonil/-OLD-NCS_Spectrum_GLava), which implemented 9 fragment shader buffers to maintain particles' positions. The new approach uses imageLoad(), imageStore() and atomic image operations to keep track of the particles' positions and also their 'depth', to determine the number of particles that are superimposed onto a given position. This produces super-accurate results, providing 60 FPS and utilizing less than 40% of an NVIDIA GTX 1650 Ti Mobile @ 1.2 GHz (underclocked) at 380x380 resolution. At 760x760 resolution, it gives 60 FPS with 80% utilization (underclocked). OpenGL version >=4.2 is required to use image-based operations, although some other extensions can enable these features regardless.  
 
-https://github.com/Roonil/NCS_Spectrum_GLava/assets/15421185/d3ff51b8-1924-4ff9-9b75-60913979138b
+https://github.com/Roonil/NCS_Spectrum_GLava/assets/15421185/453a3237-07dd-480e-b20b-c07df2d87006
 
 # Installation Instructions
 1. Get GLava's source code from https://gitlab.com/wild-turtles-publicly-release/glava/glava
@@ -43,4 +43,8 @@ glBindTextureUnit(0, atomicImageTexture);
 ![Screenshot](screenshots/380x380_Blue.png)
 ![Screenshot](screenshots/380x380_Purple.png)
 ![Screenshot](screenshots/760x760_Green.png)
+
+
+
+
 
