@@ -37,9 +37,10 @@ imageLocation = glGetUniformLocation(program, "atomicImageTexture");
 glProgramUniform1i(program, imageLocation, imageUnit);
 glBindTextureUnit(0, atomicImageTexture);
 ```
-3. After compilation, in rc.glsl file located at home/.config/glava/, change:<br /> ```#request setversion 3 3``` to ```#request setversion 4 5```, and <br /> ```#request setshaderversion 330``` to ```#request setshaderversion 450``` (alternatively, try 420, 430 or 440 for setshaderversion) 
-4. Clone the repository and copy the 'ncs' folder into home/.config/glava directory.
-5. Run the module with ```glava -m ncs``` (Suggested resolution in rc.glsl: 380x380)
+3. After compilation, in rc.glsl file located at home/.config/glava/, change:<br /> ```#request setversion 3 3``` to ```#request setversion 4 5```, and <br /> ```#request setshaderversion 330``` to ```#request setshaderversion 450``` (alternatively, try 420, 430 or 440 for setshaderversion). It is also recommended to use ```#request setmirror true``` (false by default in the file) as the visualiser then processes audio from both channels combined. In case a surrounding window appears or a change in the frame rate is desired, refer to GLava's documentation to set these parameters in rc.glsl.
+4. Clone the repository and copy both the 'ncs' folder and 'ncs.glsl' file into home/.config/glava directory.
+5. Tweak parameters in ncs.glsl to customise the appearance of the visualiser. Using an IDE such as VSCode may help easily navigate through the parameters in the file.
+6. Run the module with ```glava -m ncs``` (Suggested resolution in rc.glsl: 380x380)
 
 # Screenshots
 ![Screenshot](screenshots/380x380_Blue.png)
