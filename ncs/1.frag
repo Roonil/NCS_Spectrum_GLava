@@ -2,7 +2,6 @@ in vec4 gl_FragCoord;
 
 #request uniform "screen" screen
 uniform ivec2 screen;
-precision highp float;
 
 #request uniform "time" time
 uniform float time;
@@ -27,14 +26,11 @@ uniform sampler1D audio_l;
 #request transform audio_r "avg"
 uniform sampler1D audio_r;
 
+#include ":ncs.glsl"
+
 out vec4 fragment;
 
-layout(binding = 4, rgba32f)uniform coherent image2D image;
 layout(binding = 5, r32ui)uniform uimage2D depthImage;
-
-#define permute(x)mod(((x * 34.0) + 1.0) * x, 289.0)
-#define taylorInvSqrt(r)1.79284291400159 - 0.85373472095314 * r
-#define fade(t)t * t*t * (t * (t * 6.0 - 15.0) + 10.0)
 
 float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
 float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
@@ -45,6 +41,27 @@ float audioFractal5 = max(smooth_audio(audio_r, audio_sz, 0.6), smooth_audio(aud
 float audioFractal6 = max(smooth_audio(audio_r, audio_sz, 0.7), smooth_audio(audio_r, audio_sz, 0.75));
 float audioFractal7 = max(smooth_audio(audio_r, audio_sz, 0.8), smooth_audio(audio_r, audio_sz, 0.85));
 float audioFractal8 = max(smooth_audio(audio_r, audio_sz, 0.9), smooth_audio(audio_r, audio_sz, 0.95));
+
+float finalAudio = 0;
+
+vec4 mod289(vec4 x)
+{
+    return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
+
+vec4 permute(vec4 x)
+{
+    return mod289(((x * 34.0) + 1.0) * x);
+}
+
+vec4 taylorInvSqrt(vec4 r)
+{
+    return 1.79284291400159 - 0.85373472095314 * r;
+}
+
+vec4 fade(vec4 t) {
+    return t * t*t * (t * (t * 6.0 - 15.0) + 10.0);
+}
 
 float cnoise(vec4 P, vec4 rep) {
     vec4 Pi0 = mod(floor(P), rep);
@@ -177,15 +194,7 @@ float cnoise(vec4 P, vec4 rep) {
     return 2.2 * n_xyzw;
 }
 
-float octaveNoise(vec4 p, vec4 flow) {
-    
-    float total = 0.0;
-    const float persistence = 0.5;
-    const float lacunarity = 2.0;
-    float frequency = 1.0;
-    float amplitude = 1.0;
-    float value = 0.0;
-    const int octaves = 2;
+void setAudio() {
     
     float audios[8] = {audioFractal1, audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8};
     
@@ -266,51 +275,64 @@ float octaveNoise(vec4 p, vec4 flow) {
     audios[5] = min(audios[5], audios[6]);
     audios[6] = temp;
     
-    //const float finalAudio = 13 * mix((audios[7] * audios[6] - audios[1] * audios[0]), audios[7] * audios[6], audios[5] * audios[4]);
-    const float finalAudio = 13 * mix(mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5]), mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5] * audios[4]), 0.5);
+    finalAudio = fractalAudioMultiplier * mix(mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5]), mix(audios[6] * mix(audios[7] - audios[0], audios[6] - audios[3], audios[7] * audios[6]) - pow(audios[1] * audios[0], 1.05), audios[7] * audios[6], audios[5] * audios[4]), fractalAudioMixing);
     
-    for(int i = 0; i < octaves; i += 1) {
-        
-        value += 1.0 * finalAudio * cnoise(vec4((p + flow * time) * frequency), vec4(0)) * amplitude;
+}
+
+float octaveNoise(vec4 p, vec4 flow) {
+    
+    float total = 0.0;
+    float frequency = 1.0;
+    float amplitude = 1.0;
+    float value = 0.0;
+    
+    for(int i = 0; i < complexity; i += 1) {
+        value += (cnoise(vec4((p + flow * time) * frequency), vec4(0))) * amplitude;
         total += amplitude;
         
-        amplitude *= persistence;
-        frequency *= lacunarity;
+        amplitude *= octaveMultiplier;
+        frequency *= octaveScale;
     }
     return value / total;
+    
 }
 
 float fbm3(vec4 p, float disp, vec4 flow) {
     
     float perlinVal = 0;
-    float scale = 2.5 / screen.x, offset = 0.0, multiplier = 1.0;
-    perlinVal = offset + multiplier * octaveNoise(scale * p, flow);
+    float oN = finalAudio * (octaveNoise(fScale * (p - vec4(960, 540, 0, 0)) / screen.x, flow)); //120,2320
+    
+    oN = clamp(oN, minVal, maxVal);
+    
+    if (oN >= 0.0)
+    oN = pow(oN, gamma);
+    else if (oN < 0.0)oN = - pow(-oN, gamma);
+    
+    perlinVal = offset + noiseMultiplier * oN ;
     return disp * perlinVal;
     
 }
 
-uniform float displaceX = 90, displaceY = 100, displaceZ = 110, flowX = 0.0, flowY = 0.0327, flowZ = 0.0, flowEvolution = 0.005;
-
 void main()
 {
-    const ivec2 numParticles = ivec2(screen.xy);
-    const int particleSize = 3;
     
     const ivec2 spaces = ivec2(abs(screen.xy - 1) / (numParticles - 1));
     
-    //if (ivec2(mod(gl_FragCoord.xy, spaces)) == ivec2(0)||gl_FragCoord.xy - (mod(gl_FragCoord.xy, spaces))  == ivec2(particleSize))
-    
     if (ivec2(mod(gl_FragCoord.xy, spaces)) == ivec2(0))
     {
+        setAudio();
         vec3 particleCoords = vec3(gl_FragCoord.xy, 0);
         vec4 old = vec4(particleCoords, 0);
         
+        if (!isRadialDisplacement)
+        //Normal Displacement
         particleCoords.xyz += vec3(fbm3(old.xyzw, displaceX, vec4(flowX, flowY, flowZ, flowEvolution)), fbm3(old.yzxw, displaceY, vec4(flowY, flowZ, flowX, flowEvolution)), fbm3(old.zxyw, displaceZ, vec4(flowZ, flowX, flowY, flowEvolution)));
         
-        const float blurSize = 10.0 / screen.y, feather = 0.45;
+        //Radial Displacement
+        else particleCoords.xyz += fbm3(old.xyzw , displaceX, vec4(flowX, flowY, flowZ, flowEvolution)) * normalize(particleCoords.xyz - vec3(screen.xy / 2, 0));
         
-        float radius = 275;
-        radius += 200 * abs((audioRadius));
+        float radius = sphereRadius, blurSize = antiAlias / screen.y;
+        radius += radiusAudioMultiplier * abs((audioRadius));
         radius = min(radius, screen.x + blurSize);
         
         vec3 centerCoords = vec3(screen.xy / 2, 0);
@@ -335,7 +357,6 @@ void main()
             ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + ivec2(centerCoords.xy)) / 2;
             finalCoords += ivec2(screen.xy) / ivec2(screen.xy) / 4;
             
-            imageStore(image, finalCoords, vec4(1, 1, particleSize , 1));
             uint depth = imageAtomicAdd(depthImage, finalCoords, uint(distance));
         }
     }
