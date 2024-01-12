@@ -9,7 +9,7 @@
 #define antiAlias 5.0 //Change this value in case some color combination produces jagged spherical edges. Greater than 0.
 
 #define glowSize 10.0 //Determines the size of the glow.
-#define glowIntensity 3.5 //Determines the additive strength when adding glow to the visualiser
+#define glowIntensity 0.5 //Determines the additive strength when adding glow to the visualiser
 #define glowDirections 16.0 //Higher is slower. The number of directions to look for while applying glow. The actual direction is then calculated by dividing 2*Pi by this number which specifies the angles around a point the glow shader looks at to apply the effect.
 #define glowQuality 6.0 //Higher is slower. The quality of the glow. If using lower glow intensity or lower glow size, then keeping it to a lower value would not produce much visual difference and thus would be recommended.
 #define glowColor color //The color to use to apply glow. Leave it to color to use the original color for glow, else specify as a vec3. For Example, vec3(0,1,0) would use a green color for glow
