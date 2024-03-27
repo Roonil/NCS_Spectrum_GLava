@@ -36,11 +36,11 @@ void main()
         }
     }
     Color /= glowQuality * glowDirections;
-    fragment = vec4(glowColor, 1.0) * glowIntensity * dot(vec3(1), Color.xyz);
+    fragment.xyz = vec3(glowColor) * glowIntensity * Color.w;
     
     if (prevColor.w != 0)fragment.xyz += prevColor.xyz;
     
     fragment.xyz *= glow(length(fragment.xyz), 0.5, 0.92);
-    fragment.w = prevColor.w;
+    fragment.w = mix(Color.w, prevColor.w, 0.5);
 }
 
