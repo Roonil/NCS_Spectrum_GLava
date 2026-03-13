@@ -1,0 +1,45 @@
+diff --git a/glava/render.c b/glava/render.c
+index 220bd1f..e808ce7 100644
+--- a/glava/render.c
++++ b/glava/render.c
+@@ -654,7 +654,7 @@ static struct gl_bind_src bind_sources[] = {
+     #define SRC_SCREEN 4
+     { .name = "screen", .type = BIND_IVEC2, .src_type = SRC_SCREEN },
+     #define SRC_TIME 5
+-    { .name = "time", .type = BIND_FLOAT, .src_type = SRC_SCREEN }
++    { .name = "time", .type = BIND_FLOAT, .src_type = SRC_TIME }
+ };
+ 
+ #define window(t, sz) (0.53836 - (0.46164 * cos(TWOPI * (double) t  / (double) sz)))
+@@ -1584,6 +1584,31 @@ struct glava_renderer* rd_new(const char**    paths,        const char* entry,
+                                     ++u;
+                                 }
+                                 glBindFragDataLocation(id, 1, "fragment");
++                                GLuint imageTexture;
++                                int w, h;
++                                gl->wcb->get_fbsize(gl->w, &w, &h);
++                                glGenTextures(1, &imageTexture);
++                                glBindTexture(GL_TEXTURE_2D, imageTexture);
++                                glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, w, h);
++                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++                                GLuint imageUnit = 4;
++                                glBindImageTexture(imageUnit, imageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
++                                GLuint program = id;
++                                GLint imageLocation = glGetUniformLocation(program, "imageTexture");
++                                glProgramUniform1i(program, imageLocation, imageUnit);
++                                glBindTextureUnit(0, imageTexture);
++
++                                GLuint atomicImageTexture;
++                                glGenTextures(1, &atomicImageTexture);
++                                glBindTexture(GL_TEXTURE_2D, atomicImageTexture);
++                                glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, w, h);
++                                imageUnit = 5;
++                                glBindImageTexture(imageUnit, atomicImageTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
++                                imageLocation = glGetUniformLocation(program, "atomicImageTexture");
++                                glProgramUniform1i(program, imageLocation, imageUnit);
++                                glBindTextureUnit(0, atomicImageTexture);
++                                
+                                 glUseProgram(0);
+                             }
+                         

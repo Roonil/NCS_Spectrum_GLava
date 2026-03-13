@@ -30,7 +30,7 @@ uniform sampler1D audio_r;
 
 out vec4 fragment;
 
-layout(binding = 5, r32ui)uniform uimage2D depthImage;
+layout(binding = 5, r32ui) uniform uimage2D depthImage;
 
 float audioRadius = max(smooth_audio(audio_r, audio_sz, 0.1), smooth_audio(audio_r, audio_sz, 0.15));
 float audioFractal1 = max(smooth_audio(audio_r, audio_sz, 0.2), smooth_audio(audio_r, audio_sz, 0.25));
@@ -59,11 +59,13 @@ vec4 taylorInvSqrt(vec4 r)
     return 1.79284291400159 - 0.85373472095314 * r;
 }
 
-vec4 fade(vec4 t) {
-    return t * t*t * (t * (t * 6.0 - 15.0) + 10.0);
+vec4 fade(vec4 t)
+{
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-float cnoise(vec4 P, vec4 rep) {
+float cnoise(vec4 P, vec4 rep)
+{
     vec4 Pi0 = mod(floor(P), rep);
     vec4 Pi1 = mod(Pi0 + 1.0, rep);
     vec4 Pf0 = fract(P);
@@ -74,7 +76,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 iz1 = vec4(Pi1.zzzz);
     vec4 iw0 = vec4(Pi0.wwww);
     vec4 iw1 = vec4(Pi1.wwww);
-    
+
     vec4 ixy = permute(permute(ix) + iy);
     vec4 ixy0 = permute(ixy + iz0);
     vec4 ixy1 = permute(ixy + iz1);
@@ -82,7 +84,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 ixy01 = permute(ixy0 + iw1);
     vec4 ixy10 = permute(ixy1 + iw0);
     vec4 ixy11 = permute(ixy1 + iw1);
-    
+
     vec4 gx00 = ixy00 / 7.0;
     vec4 gy00 = floor(gx00) / 7.0;
     vec4 gz00 = floor(gy00) / 6.0;
@@ -93,7 +95,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 sw00 = step(gw00, vec4(0.0));
     gx00 -= sw00 * (step(0.0, gx00) - 0.5);
     gy00 -= sw00 * (step(0.0, gy00) - 0.5);
-    
+
     vec4 gx01 = ixy01 / 7.0;
     vec4 gy01 = floor(gx01) / 7.0;
     vec4 gz01 = floor(gy01) / 6.0;
@@ -104,7 +106,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 sw01 = step(gw01, vec4(0.0));
     gx01 -= sw01 * (step(0.0, gx01) - 0.5);
     gy01 -= sw01 * (step(0.0, gy01) - 0.5);
-    
+
     vec4 gx10 = ixy10 / 7.0;
     vec4 gy10 = floor(gx10) / 7.0;
     vec4 gz10 = floor(gy10) / 6.0;
@@ -115,7 +117,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 sw10 = step(gw10, vec4(0.0));
     gx10 -= sw10 * (step(0.0, gx10) - 0.5);
     gy10 -= sw10 * (step(0.0, gy10) - 0.5);
-    
+
     vec4 gx11 = ixy11 / 7.0;
     vec4 gy11 = floor(gx11) / 7.0;
     vec4 gz11 = floor(gy11) / 6.0;
@@ -126,7 +128,7 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 sw11 = step(gw11, vec4(0.0));
     gx11 -= sw11 * (step(0.0, gx11) - 0.5);
     gy11 -= sw11 * (step(0.0, gy11) - 0.5);
-    
+
     vec4 g0000 = vec4(gx00.x, gy00.x, gz00.x, gw00.x);
     vec4 g1000 = vec4(gx00.y, gy00.y, gz00.y, gw00.y);
     vec4 g0100 = vec4(gx00.z, gy00.z, gz00.z, gw00.z);
@@ -143,31 +145,31 @@ float cnoise(vec4 P, vec4 rep) {
     vec4 g1011 = vec4(gx11.y, gy11.y, gz11.y, gw11.y);
     vec4 g0111 = vec4(gx11.z, gy11.z, gz11.z, gw11.z);
     vec4 g1111 = vec4(gx11.w, gy11.w, gz11.w, gw11.w);
-    
+
     vec4 norm00 = taylorInvSqrt(vec4(dot(g0000, g0000), dot(g0100, g0100), dot(g1000, g1000), dot(g1100, g1100)));
     g0000 *= norm00.x;
     g0100 *= norm00.y;
     g1000 *= norm00.z;
     g1100 *= norm00.w;
-    
+
     vec4 norm01 = taylorInvSqrt(vec4(dot(g0001, g0001), dot(g0101, g0101), dot(g1001, g1001), dot(g1101, g1101)));
     g0001 *= norm01.x;
     g0101 *= norm01.y;
     g1001 *= norm01.z;
     g1101 *= norm01.w;
-    
+
     vec4 norm10 = taylorInvSqrt(vec4(dot(g0010, g0010), dot(g0110, g0110), dot(g1010, g1010), dot(g1110, g1110)));
     g0010 *= norm10.x;
     g0110 *= norm10.y;
     g1010 *= norm10.z;
     g1110 *= norm10.w;
-    
+
     vec4 norm11 = taylorInvSqrt(vec4(dot(g0011, g0011), dot(g0111, g0111), dot(g1011, g1011), dot(g1111, g1111)));
     g0011 *= norm11.x;
     g0111 *= norm11.y;
     g1011 *= norm11.z;
     g1111 *= norm11.w;
-    
+
     float n0000 = dot(g0000, Pf0);
     float n1000 = dot(g1000, vec4(Pf1.x, Pf0.yzw));
     float n0100 = dot(g0100, vec4(Pf0.x, Pf1.y, Pf0.zw));
@@ -184,7 +186,7 @@ float cnoise(vec4 P, vec4 rep) {
     float n1011 = dot(g1011, vec4(Pf1.x, Pf0.y, Pf1.zw));
     float n0111 = dot(g0111, vec4(Pf0.x, Pf1.yzw));
     float n1111 = dot(g1111, Pf1);
-    
+
     vec4 fade_xyzw = fade(Pf0);
     vec4 n_0w = mix(vec4(n0000, n1000, n0100, n1100), vec4(n0001, n1001, n0101, n1101), fade_xyzw.w);
     vec4 n_1w = mix(vec4(n0010, n1010, n0110, n1110), vec4(n0011, n1011, n0111, n1111), fade_xyzw.w);
@@ -194,172 +196,171 @@ float cnoise(vec4 P, vec4 rep) {
     return 2.2 * n_xyzw;
 }
 
-void setAudio() {
-    
-    float audios[8] = {audioFractal1, audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8};
-    
+void setAudio()
+{
+
+    float audios[8] = { audioFractal1, audioFractal2, audioFractal3, audioFractal4, audioFractal5, audioFractal6, audioFractal7, audioFractal8 };
+
     float temp;
     temp = max(audios[0], audios[2]);
     audios[0] = min(audios[0], audios[2]);
     audios[2] = temp;
-    
+
     temp = max(audios[1], audios[3]);
     audios[1] = min(audios[1], audios[3]);
     audios[3] = temp;
-    
+
     temp = max(audios[4], audios[6]);
     audios[4] = min(audios[4], audios[6]);
     audios[6] = temp;
-    
+
     temp = max(audios[5], audios[7]);
     audios[5] = min(audios[5], audios[7]);
     audios[7] = temp;
-    
+
     temp = max(audios[0], audios[4]);
     audios[0] = min(audios[0], audios[4]);
     audios[4] = temp;
-    
+
     temp = max(audios[1], audios[5]);
     audios[1] = min(audios[1], audios[5]);
     audios[5] = temp;
-    
+
     temp = max(audios[2], audios[6]);
     audios[2] = min(audios[2], audios[6]);
     audios[6] = temp;
-    
+
     temp = max(audios[3], audios[7]);
     audios[3] = min(audios[3], audios[7]);
     audios[7] = temp;
-    
+
     temp = max(audios[0], audios[1]);
     audios[0] = min(audios[0], audios[1]);
     audios[1] = temp;
-    
+
     temp = max(audios[2], audios[3]);
     audios[2] = min(audios[2], audios[3]);
     audios[3] = temp;
-    
+
     temp = max(audios[4], audios[5]);
     audios[4] = min(audios[4], audios[5]);
     audios[5] = temp;
-    
+
     temp = max(audios[6], audios[7]);
     audios[6] = min(audios[6], audios[7]);
     audios[7] = temp;
-    
+
     temp = max(audios[2], audios[4]);
     audios[2] = min(audios[2], audios[4]);
     audios[4] = temp;
-    
+
     temp = max(audios[3], audios[5]);
     audios[3] = min(audios[3], audios[5]);
     audios[5] = temp;
-    
+
     temp = max(audios[1], audios[4]);
     audios[1] = min(audios[1], audios[4]);
     audios[4] = temp;
-    
+
     temp = max(audios[3], audios[6]);
     audios[3] = min(audios[3], audios[6]);
     audios[6] = temp;
-    
+
     temp = max(audios[1], audios[2]);
     audios[1] = min(audios[1], audios[2]);
     audios[2] = temp;
-    
+
     temp = max(audios[3], audios[4]);
     audios[3] = min(audios[3], audios[4]);
     audios[4] = temp;
-    
+
     temp = max(audios[5], audios[6]);
     audios[5] = min(audios[5], audios[6]);
     audios[6] = temp;
-    
+
     finalAudio = fractalAudioMultiplier * mix(mix(audios[7] * audios[6] - audios[1] * audios[0], audios[7] * audios[6], audios[5]), mix(audios[6] * mix(audios[7] - audios[0], audios[6] - audios[3], audios[7] * audios[6]) - pow(audios[1] * audios[0], 1.05), audios[7] * audios[6], audios[5] * audios[4]), fractalAudioMixing);
-    
 }
 
-float octaveNoise(vec4 p, vec4 flow) {
-    
+float octaveNoise(vec4 p, vec4 flow)
+{
+
     float total = 0.0;
     float frequency = 1.0;
     float amplitude = 1.0;
     float value = 0.0;
-    
-    for(int i = 0; i < complexity; i += 1) {
+
+    for (int i = 0; i < complexity; i += 1) {
         value += (cnoise(vec4((p + flow * time) * frequency), vec4(0))) * amplitude;
         total += amplitude;
-        
+
         amplitude *= octaveMultiplier;
         frequency *= octaveScale;
     }
     return value / total;
-    
 }
 
-float fbm3(vec4 p, float disp, vec4 flow) {
-    
+float fbm3(vec4 p, float disp, vec4 flow)
+{
+
     float perlinVal = 0;
-    float oN = finalAudio * (octaveNoise(fScale * (p - vec4(960, 540, 0, 0)) / screen.x, flow)); //120,2320
-    
+    float oN = finalAudio * (octaveNoise(fScale * (p - vec4(960, 540, 0, 0)) / screen.x, flow)); // 120,2320
+
     oN = clamp(oN, minVal, maxVal);
-    
+
     if (oN >= 0.0)
-    oN = pow(oN, gamma);
-    else if (oN < 0.0)oN = - pow(-oN, gamma);
-    
-    perlinVal = offset + noiseMultiplier * oN ;
+        oN = pow(oN, gamma);
+    else if (oN < 0.0)
+        oN = -pow(-oN, gamma);
+
+    perlinVal = offset + noiseMultiplier * oN;
     return disp * perlinVal;
-    
 }
 
 void main()
 {
-    
+
     const ivec2 spaces = ivec2(abs(screen.xy - 1) / (numParticles - 1));
-    
-    if (ivec2(mod(gl_FragCoord.xy, spaces)) == ivec2(0))
-    {
-        setAudio();
-        vec3 particleCoords = vec3(gl_FragCoord.xy, 0);
-        vec4 old = vec4(particleCoords, 0);
-        
-        if (!isRadialDisplacement)
-        //Normal Displacement
+
+    if (ivec2(mod(gl_FragCoord.xy, spaces)) != ivec2(0))
+        discard;
+
+    setAudio();
+    vec3 particleCoords = vec3(gl_FragCoord.xy, 0);
+    vec4 old = vec4(particleCoords, 0);
+
+    if (!isRadialDisplacement)
+        // Normal Displacement
         particleCoords.xyz += vec3(fbm3(old.xyzw, displaceX, vec4(flowX, flowY, flowZ, flowEvolution)), fbm3(old.yzxw, displaceY, vec4(flowY, flowZ, flowX, flowEvolution)), fbm3(old.zxyw, displaceZ, vec4(flowZ, flowX, flowY, flowEvolution)));
-        
-        //Radial Displacement
-        else particleCoords.xyz += fbm3(old.xyzw , displaceX, vec4(flowX, flowY, flowZ, flowEvolution)) * normalize(particleCoords.xyz - vec3(screen.xy / 2, 0));
-        
-        float radius = sphereRadius, blurSize = antiAlias / screen.y;
-        radius += radiusAudioMultiplier * abs((audioRadius));
-        radius = min(radius, screen.x + blurSize);
-        
-        vec3 centerCoords = vec3(screen.xy / 2, 0);
-        vec3 distanceVectorFromCenter = (particleCoords - centerCoords);
-        
-        if (length(distanceVectorFromCenter) <= radius)
-        {
-            vec3 newPos = centerCoords + radius * normalize(distanceVectorFromCenter);
-            
-            float diff = length(newPos - particleCoords);
-            diff *= (clamp((smoothstep(0.0, feather * (radius), diff)) + blurSize, blurSize, 1.0 + blurSize));
-            
-            particleCoords += diff * normalize(distanceVectorFromCenter);
-        }
-        
-        for(int i =- particleSize; i <= particleSize; i ++ )for(int j =- particleSize; j <= particleSize; j ++ )
-        {
+
+    // Radial Displacement
+    else
+        particleCoords.xyz += fbm3(old.xyzw, displaceX, vec4(flowX, flowY, flowZ, flowEvolution)) * normalize(particleCoords.xyz - vec3(screen.xy / 2, 0));
+
+    float radius = sphereRadius, blurSize = antiAlias / screen.y;
+    radius += radiusAudioMultiplier * abs((audioRadius));
+    radius = min(radius, screen.x + blurSize);
+
+    vec3 centerCoords = vec3(screen.xy / 2, 0);
+    vec3 distanceVectorFromCenter = (particleCoords - centerCoords);
+
+    if (length(distanceVectorFromCenter) <= radius) {
+        vec3 newPos = centerCoords + radius * normalize(distanceVectorFromCenter);
+
+        float diff = length(newPos - particleCoords);
+        diff *= (clamp((smoothstep(0.0, feather * (radius), diff)) + blurSize, blurSize, 1.0 + blurSize));
+
+        particleCoords += diff * normalize(distanceVectorFromCenter);
+    }
+
+    for (int i = -particleSize; i <= particleSize; i++)
+        for (int j = -particleSize; j <= particleSize; j++) {
             float distance = length(vec2(i, j));
-            distance = 1-smoothstep(0, particleSize, distance);
+            distance = 1 - smoothstep(0, particleSize, distance);
             distance *= particleSize;
-            
+
             ivec2 finalCoords = ivec2(particleCoords.xy + vec2(i, j) + ivec2(centerCoords.xy)) / 2;
             finalCoords += ivec2(screen.xy) / ivec2(screen.xy) / 4;
-            
+
             uint depth = imageAtomicAdd(depthImage, finalCoords, uint(distance));
         }
-    }
-    
 }
-
